@@ -123,3 +123,4 @@ app.listen(PORT, () => {
   console.log(`   MerchantID : ${process.env.NIUBIZ_MERCHANT_ID}`);
   console.log(`   Ambiente   : SANDBOX\n`);
 });
+      
