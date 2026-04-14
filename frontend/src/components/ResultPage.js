@@ -24,12 +24,27 @@ function useQueryParams() {
 function parseResult(params) {
   const action = params.action || params.actionCode || "";
   const errorCode = params.errorCode || params.responseCode || "";
+  const status = (params.status || params.transactionStatus || "").toLowerCase();
+  const hasAuthCode = Boolean(params.authorization || params.authorizationCode);
+  const hasTransactionId = Boolean(params.transactionId || params.transactionToken);
 
-  if (action === "000" || errorCode === "000") {
-    return { type: "success", icon: "✅", label: "Pago aprobado" };
-  }
-  if (["002", "005", "100", "101"].includes(action)) {
+  const successStatuses = ["approved", "authorized", "success", "completed", "completado"];
+  const normalizedStatusTokens = status
+    .split(/[^a-z0-9]+/i)
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const hasSuccessfulStatus = normalizedStatusTokens.some((value) => successStatuses.includes(value));
+  const isRejectedAction = ["002", "005", "100", "101"].includes(action);
+
+  if (isRejectedAction) {
     return { type: "error", icon: "❌", label: "Pago rechazado" };
+  }
+
+  const hasAuthFallbackSuccess =
+    hasAuthCode && hasTransactionId && !errorCode && action !== "005" && !isRejectedAction;
+
+  if (action === "000" || errorCode === "000" || hasSuccessfulStatus || hasAuthFallbackSuccess) {
+    return { type: "success", icon: "✅", label: "Pago aprobado" };
   }
   return { type: "pending", icon: "⏳", label: "Pago pendiente" };
 }
@@ -56,7 +71,7 @@ export default function ResultPage() {
       {result.type === "success" && (
         <div className="confirmation-banner">
           <div className="confirmation-banner__check">✓</div>
-          <p className="confirmation-banner__title">¡Pago confirmado!</p>
+          <p className="confirmation-banner__title">¡Compra completada con éxito!</p>
           <p className="confirmation-banner__msg">
             Tu compra fue procesada exitosamente. Recibirás un correo de confirmación en breve.
           </p>
