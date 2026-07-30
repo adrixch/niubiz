@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const FRONTEND_RESULT_URL = process.env.FRONTEND_RESULT_URL || "http://localhost:3000/result.html";
 
-app.use(cors({ origin: ["http://localhost:3000", "http://localhost:3001"] }));
+app.use(cors({ origin: ["http://localhost:3000", "http://localhost:3001", "https://niubiz.vercel.app"] }));
 app.use(express.json());
 
 function buildBasicAuth() {
