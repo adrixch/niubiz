@@ -4,8 +4,12 @@ import ResultPage from "./components/ResultPage";
 import "./App.css";
 
 function App() {
+  const { pathname } = window.location;
   const hash = window.location.hash;
-  return hash.startsWith("#/result") ? <ResultPage /> : <CheckoutPage />;
-}
+  const isResultRoute =
+    hash.startsWith("#/result") || pathname === "/result";
+
+  return isResultRoute ? <ResultPage /> : <CheckoutPage />;
+  }
 
 export default App;

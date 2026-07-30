@@ -5,6 +5,7 @@ const axios = require("axios");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const FRONTEND_RESULT_URL = process.env.FRONTEND_RESULT_URL || "http://localhost:3000/result.html";
 
 app.use(cors({ origin: ["http://localhost:3000", "http://localhost:3001"] }));
 app.use(express.json());
@@ -69,7 +70,7 @@ app.post("/api/session", async (req, res) => {
   const merchantId = process.env.NIUBIZ_MERCHANT_ID;
   const sessionUrl = `${process.env.NIUBIZ_ECOMMERCE_URL}/${merchantId}`;
 
-  const purchaseNumber = `ORD-${Date.now()}`;
+  const purchaseNumber = String(Date.now()).slice(-12);
 
   const payload = {
     channel: "web",
@@ -86,7 +87,7 @@ app.post("/api/session", async (req, res) => {
       },
     },
 
-    redirecturl: "http://localhost:3000/result"
+    redirecturl: FRONTEND_RESULT_URL
   };
 
   try {
