@@ -7,22 +7,6 @@ const NIUBIZ_SCRIPT_URL =
 
 // Niubiz navega aquí desde fuera de la app: debe ser una URL real, no una ruta hash.
 const EXTERNAL_RESULT_URL = `${window.location.origin}/result.html`;
-// El callback `complete` corre dentro de la app, así que puede usar la ruta hash directamente.
-const APP_RESULT_URL = "/#/result";
-
-// Niubiz puede devolver objetos anidados (p. ej. `dataMap` con ACTION_CODE).
-// Los aplanamos para no perderlos al convertirlos en query params.
-function flattenParams(obj) {
-  return Object.entries(obj || {}).reduce((acc, [key, value]) => {
-    if (value === null || value === undefined) return acc;
-    if (typeof value === "object") {
-      Object.assign(acc, flattenParams(value));
-    } else {
-      acc[key] = String(value);
-    }
-    return acc;
-  }, {});
-}
 
 function loadNiubizScript() {
   return new Promise((resolve, reject) => {
@@ -81,8 +65,13 @@ export default function CheckoutPage() {
         throw new Error("El checkout de Niubiz no se inicializó correctamente");
       }
 
+      // Niubiz hace POST del transactionToken a esta URL: es nuestro backend,
+      // que autoriza la transacción y redirige a la pantalla de resultado.
+      const authorizationUrl =
+        `${API_URL}/api/authorization?purchaseNumber=${encodeURIComponent(purchaseNumber)}`;
+
       window.VisanetCheckout.configure({
-        action: "https://sandbox.vnforapps.com/v2/payments/visa",
+        action: authorizationUrl,
         sessiontoken: sessionToken,
         channel: "web",
         merchantid: MERCHANT_ID,
@@ -91,11 +80,6 @@ export default function CheckoutPage() {
         currency: "PEN",
         description: "Producto Demo",
         timeouturl: EXTERNAL_RESULT_URL,
-        complete: function (params) {
-          console.log("[Niubiz] Resultado del pago:", params);
-          const query = new URLSearchParams(flattenParams(params)).toString();
-          window.location.href = `${APP_RESULT_URL}?${query}`;
-        },
       });
 
       window.VisanetCheckout.open();
