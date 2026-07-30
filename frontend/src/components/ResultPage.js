@@ -22,11 +22,11 @@ function useQueryParams() {
  *   otros → Pendiente / desconocido
  */
 function parseResult(params) {
-  const action = params.action || params.actionCode || "";
+  const action = params.action || params.actionCode || params.ACTION_CODE || "";
   const errorCode = params.errorCode || params.responseCode || "";
 
   if (action === "000" || errorCode === "000") {
-    return { type: "success", icon: "✅", label: "Pago aprobado" };
+    return { type: "success", icon: "✅", label: "Compra exitosa" };
   }
   if (["002", "005", "100", "101"].includes(action)) {
     return { type: "error", icon: "❌", label: "Pago rechazado" };
@@ -56,7 +56,7 @@ export default function ResultPage() {
       {result.type === "success" && (
         <div className="confirmation-banner">
           <div className="confirmation-banner__check">✓</div>
-          <p className="confirmation-banner__title">¡Pago confirmado!</p>
+          <p className="confirmation-banner__title">¡Compra exitosa!</p>
           <p className="confirmation-banner__msg">
             Tu compra fue procesada exitosamente. Recibirás un correo de confirmación en breve.
           </p>

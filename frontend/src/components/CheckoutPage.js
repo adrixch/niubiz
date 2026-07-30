@@ -10,6 +10,20 @@ const EXTERNAL_RESULT_URL = `${window.location.origin}/result.html`;
 // El callback `complete` corre dentro de la app, así que puede usar la ruta hash directamente.
 const APP_RESULT_URL = "/#/result";
 
+// Niubiz puede devolver objetos anidados (p. ej. `dataMap` con ACTION_CODE).
+// Los aplanamos para no perderlos al convertirlos en query params.
+function flattenParams(obj) {
+  return Object.entries(obj || {}).reduce((acc, [key, value]) => {
+    if (value === null || value === undefined) return acc;
+    if (typeof value === "object") {
+      Object.assign(acc, flattenParams(value));
+    } else {
+      acc[key] = String(value);
+    }
+    return acc;
+  }, {});
+}
+
 function loadNiubizScript() {
   return new Promise((resolve, reject) => {
     if (document.getElementById("niubiz-checkout-script")) {
@@ -79,7 +93,7 @@ export default function CheckoutPage() {
         timeouturl: EXTERNAL_RESULT_URL,
         complete: function (params) {
           console.log("[Niubiz] Resultado del pago:", params);
-          const query = new URLSearchParams(params).toString();
+          const query = new URLSearchParams(flattenParams(params)).toString();
           window.location.href = `${APP_RESULT_URL}?${query}`;
         },
       });
